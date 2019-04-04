@@ -1,7 +1,9 @@
-﻿namespace AttributeExtractor.Processing
+﻿using System.Collections.Generic;
+
+namespace AttributeExtractor.Processing
 {
     public interface ITokenProcessor
     {
-        Token[] Process(Token[] tokens);
+        List<Token> Process(List<Token> tokens);
     }
 }

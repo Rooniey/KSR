@@ -1,7 +1,9 @@
-﻿namespace AttributeExtractor.Extracting
+﻿using System.Collections.Generic;
+
+namespace AttributeExtractor.Extracting
 {
     interface IFeatureExtractor
     {
-        double ExtractFeature(Token[] token);
+        Dictionary<string, double> ExtractFeature(Token[] token);
     }
 }

@@ -7,7 +7,7 @@
             Word = word;
         }
 
-        public string Word { get; }
+        public string Word { get; set; }
 
     }
 }
