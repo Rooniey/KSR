@@ -21,11 +21,13 @@ namespace Classification.domain
                 if (centroid.Dimensions != dimension)
                     throw new ArgumentException("Every centroid must have the same dimensions");
             }
+
+            Centroids = centroids;
             K = k;
         }
 
 
-        public string ProcessInput(double[] featureVector, bool addToCentroids)
+        public string ProcessInput(double[] featureVector)
         {
             //TODO what if n = 3, and there is 1 : 1 : 1
             return Centroids

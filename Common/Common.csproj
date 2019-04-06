@@ -4,18 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1EBCE0CA-9C65-4D3A-AD05-BC3C5F267CC6}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>ConsoleApp</RootNamespace>
-    <AssemblyName>ConsoleApp</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <ProjectGuid>{B863EAFB-FB3A-48D3-A087-F3A92DAAE394}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Common</RootNamespace>
+    <AssemblyName>Common</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -25,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -44,33 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AttributeExtractor\AttributeExtractor.csproj">
-      <Project>{60433151-769e-4b0c-ac64-0724622f793b}</Project>
-      <Name>AttributeExtractor</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Classification\Classification.csproj">
-      <Project>{39ba3b3b-014a-4406-a8a1-56ec0e702cf0}</Project>
-      <Name>Classification</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Common\Common.csproj">
-      <Project>{B863EAFB-FB3A-48D3-A087-F3A92DAAE394}</Project>
-      <Name>Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DataSetParser\DataSetParser.csproj">
-      <Project>{d55b7c11-c534-4adf-a53e-a752b8309af7}</Project>
-      <Name>DataSetParser</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Statistics\Statistics.csproj">
-      <Project>{03c36010-7de2-462c-809d-610116ad2cce}</Project>
-      <Name>Statistics</Name>
-    </ProjectReference>
+    <Compile Include="Utility\DictionaryExtensions.cs" />
+    <Compile Include="Utility\LinqExtensions.cs" />
+    <Compile Include="Utility\TextUtility.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

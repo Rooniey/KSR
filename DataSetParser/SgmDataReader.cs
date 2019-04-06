@@ -2,72 +2,75 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml;
+using AttributeExtractor.Utility;
 
 namespace DataSetParser
 {
     public static class SgmDataReader
     {
-        public static List<LabeledArticle> ReadAllSamples(string filePath, string labelName)
+        public static List<Article> GetArticles(string dirPath, string labelName)
+        {
+            return Directory.GetFiles(dirPath)
+                .Where(p => Path.GetExtension(p) == ".sgm")
+                .SelectMany(f => SgmDataReader.ReadAllSamples(f, labelName))
+                .Peek(a => a.Body = a.Body.ReplaceSpecialCharacters())
+                .ToList();
+        }
+
+        public static List<Article> ReadAllSamples(string filePath, string labelName)
         {
             if (!File.Exists(filePath))
             {
                 throw new FileNotFoundException($"File not found under: {filePath}");
             }
-            else
+
+            List<Article> samples = new List<Article>();
+            string label = "unknown";
+            using (var reader = new XmlTextReader(filePath))
             {
-                List<LabeledArticle> samples = new List<LabeledArticle>();
-                string label = "unknown";
-                using (var reader = new XmlTextReader(filePath))
+                while (reader.Read())
                 {
-                    while (reader.Read())
+                    if (reader.NodeType == XmlNodeType.Element)
                     {
-                        if (reader.NodeType == XmlNodeType.Element)
+                        if (string.Equals(reader.Name, labelName, StringComparison.InvariantCultureIgnoreCase))
                         {
-                            if (string.Equals(reader.Name, labelName, StringComparison.InvariantCultureIgnoreCase))
+                            label = "unknown";
+                            while (reader.Read())
                             {
-                                label = "unknown";
-                                while (reader.Read())
+                                while (reader.Name.ToUpperInvariant() == "D")
                                 {
-                                    while (reader.Name.ToUpperInvariant() == "D")
-                                    {
-                                        reader.Read();
-                                    }
-
-                                    if (!string.IsNullOrWhiteSpace(reader.Value))
-                                    {
-                                        label = reader.Value;
-                                        break;
-                                    }
-
-                                    if (reader.NodeType == XmlNodeType.EndElement
-                                        && string.Equals(reader.Name, $"{labelName}",
-                                            StringComparison.InvariantCultureIgnoreCase))
-                                    {
-                                        break;
-                                    }
+                                    reader.Read();
                                 }
-                            }
-                            if (reader.Name.ToUpperInvariant() == "TITLE")
-                            {
-                                reader.Read();
-                                string title = reader.Value;
-                                string dateline = ReadTextElement(reader, "dateline");
-                                string body = ReadTextElement(reader, "body");
-                                if (title != null && dateline != null && body != null)
+
+                                if (!string.IsNullOrWhiteSpace(reader.Value))
                                 {
-                                    samples.Add(
-                                        new LabeledArticle(
-                                            new Article() { Title = title, Body = body },
-                                            label
-                                    ));
+                                    label = reader.Value;
+                                    break;
+                                }
+
+                                if (reader.NodeType == XmlNodeType.EndElement
+                                    && string.Equals(reader.Name, $"{labelName}",
+                                        StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    break;
                                 }
                             }
                         }
+
+                        if (reader.Name.ToUpperInvariant() != "TITLE") continue;
+
+                        reader.Read();
+                        string body = ReadTextElement(reader, "body");
+                        if (body != null && Constants.PLACES.Contains(label))
+                        {
+                            samples.Add(new Article(body, label));
+                        }
                     }
                 }
-                return samples;
             }
+            return samples;
         }
 
         private static string ReadTextElement(XmlTextReader reader, string elementName)
@@ -79,13 +82,11 @@ namespace DataSetParser
                 readerState = reader.Read();
             }
 
-            if (readerState)
-            {
-                reader.Read();
-                return reader.Value;
-            }
+            if (!readerState) return null;
 
-            return null;
+            reader.Read();
+            return reader.Value;
+
         }
     }
 }

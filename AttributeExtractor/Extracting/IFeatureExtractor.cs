@@ -2,8 +2,8 @@
 
 namespace AttributeExtractor.Extracting
 {
-    interface IFeatureExtractor
+    public interface IFeatureExtractor
     {
-        Dictionary<string, double> ExtractFeature(Token[] token);
+        Dictionary<string, double> ExtractFeatures(List<string> article, List<List<string>> allArticles, List<string> keywords);
     }
 }

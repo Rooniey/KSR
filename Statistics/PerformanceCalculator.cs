@@ -1,20 +1,41 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DataSetParser.Model;
 using Statistics.model;
 
 namespace Statistics
 {
     public static class PerformanceCalculator
     {
-        public static PerformanceMeasures CalculatePerformanceMeasures(int[][] confusionMatrix)
+        public static PerformanceMeasures CalculatePerformanceMeasures(List<Article> testSet, Dictionary<string, int> labelsCollection)
         {
+            int[][] confusionMatrix = CalculateConfusionMatrix(testSet, labelsCollection);
             double precision = CalculatePrecision(confusionMatrix);
             double recall = CalculateRecall(confusionMatrix);
             double specificity = CalculateSpecificity(confusionMatrix);
             double averageAccuracy = CalculateAverageAccuracy(confusionMatrix);
 
-            return new PerformanceMeasures(precision, specificity, recall, averageAccuracy);
+            return new PerformanceMeasures(confusionMatrix,precision, specificity, recall, averageAccuracy);
 
+        }
+
+        private static int[][] CalculateConfusionMatrix(List<Article> testSet, Dictionary<string, int> labelsCollection)
+        {
+            int numberOfClasses = labelsCollection.Count;
+            int[][] intConfusionMatrix = new int[numberOfClasses][];
+            for (int i = 0; i < numberOfClasses; i++)
+            {
+                intConfusionMatrix[i] = new int[numberOfClasses];
+            }
+
+            foreach (var article in testSet)
+            {
+                int row = labelsCollection[article.Label];
+                int column = labelsCollection[article.Prediction];
+                intConfusionMatrix[row][column]++;
+            }
+
+            return intConfusionMatrix;
         }
 
         private static double CalculatePrecision(int[][] confusionMatrix)

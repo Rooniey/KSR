@@ -3,10 +3,153 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        DataContext="{StaticResource MainViewModel}"
         xmlns:local="clr-namespace:Presentation"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        Title="Text classification app" Height="450" Width="800"
+        mc:Ignorable="d">
+    <Window.Resources>
+        <Style x:Key="Label" TargetType="TextBlock">
+            <Setter Property="FontStyle" Value="Normal" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="15" />
+        </Style>
+        <Style x:Key="Value" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="CustomStackPanel" TargetType="StackPanel">
+            <Setter Property="Orientation" Value="Vertical" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Margin" Value="10 5 10 5" />
+        </Style>
+    </Window.Resources>
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
+            <ColumnDefinition Width="5*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel
+            Grid.Row="0"
+            Grid.Column="0"
+            Style="{StaticResource CustomStackPanel}">
+
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource Label}"
+                           Text="Training set fraction:" />
+                <TextBlock Style="{StaticResource Label}"
+                           Width="100"
+                           HorizontalAlignment="Center"
+                           Margin="10 0"
+                           Text="{Binding TrainingSetFraction, StringFormat=N2}" />
+            </StackPanel>
+            <Slider Minimum="0.0" Maximum="1.0" Value="{Binding TrainingSetFraction, UpdateSourceTrigger=PropertyChanged}"></Slider>
+        </StackPanel>
+        <StackPanel
+            Grid.Row="1"
+            Grid.Column="0"
+            Style="{StaticResource CustomStackPanel}">
+
+            <TextBlock Style="{StaticResource Label}"
+                       Text="K for kNN:" />
+            <TextBox Style="{StaticResource Value}"
+                       Width="100"
+                       Text="{Binding K, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+        <StackPanel
+            Grid.Row="2"
+            Grid.Column="0"
+            Style="{StaticResource CustomStackPanel}">
+
+            <TextBlock Style="{StaticResource Label}"
+                       Text="# of keywords to cut:" />
+            <TextBox Style="{StaticResource Value}"
+                     Width="100"
+                     Text="{Binding MostFrequentTermsToCutCount, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+        <StackPanel
+            Grid.Row="3"
+            Grid.Column="0"
+            Style="{StaticResource CustomStackPanel}">
+
+            <TextBlock Style="{StaticResource Label}"
+                       Text="Metric:" />
+
+            <ComboBox
+                ItemsSource="{Binding Metrics}"
+                SelectedItem="{Binding Metric}"></ComboBox>
+        </StackPanel>
+        <StackPanel
+            Grid.Row="4"
+            Grid.Column="0"
+            Style="{StaticResource CustomStackPanel}">
+
+            <TextBlock Style="{StaticResource Label}"
+                       Text="Feature extractor:" />
+
+            <ComboBox
+                ItemsSource="{Binding FeatureExtractors}"
+                SelectedItem="{Binding FeatureExtractor}"></ComboBox>
+        </StackPanel>
+        <StackPanel
+            Grid.Row="5"
+            Grid.Column="0"
+            Style="{StaticResource CustomStackPanel}">
+
+            <TextBlock Style="{StaticResource Label}"
+                       Text="Word comparator:" />
+
+            <ComboBox
+                ItemsSource="{Binding WordComparators}"
+                SelectedItem="{Binding WordComparator}"></ComboBox>
+        </StackPanel>
+        <StackPanel
+            Grid.Row="7"
+            Grid.Column="0"
+            Style="{StaticResource CustomStackPanel}">
+
+            <TextBlock Style="{StaticResource Label}"
+                       Text="Data set path" />
+            <TextBox Style="{StaticResource Value}"
+                     Width="200"
+                     Text="{Binding DataSetDirectory, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+        <Button Grid.Row="0" Grid.Column="1" Command="{Binding StartCommand}" Content="Predict" Width="200" HorizontalAlignment="Right" Margin="10 0"></Button>
+        <StackPanel Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Orientation="Vertical" DataContext="{Binding PerformanceMeasures}">
+            <StackPanel Orientation="Horizontal" Width="200" HorizontalAlignment="Left">
+                <TextBlock Text="Accuracy:" Margin="10 0"></TextBlock>
+                <TextBlock Text="{Binding AverageAccuracy, StringFormat=N2}" HorizontalAlignment="Right"></TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Width="200" HorizontalAlignment="Left">
+                <TextBlock Text="Precision:" Margin="10 0"></TextBlock>
+                <TextBlock Text="{Binding Precision, StringFormat=N2}" HorizontalAlignment="Right"></TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Width="200" HorizontalAlignment="Left">
+                <TextBlock Text="Recall:" Margin="10 0"></TextBlock>
+                <TextBlock Text="{Binding Recall, StringFormat=N2}" HorizontalAlignment="Right"></TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Width="200" HorizontalAlignment="Left">
+                <TextBlock Text="Specificity:" Margin="10 0"></TextBlock>
+                <TextBlock Text="{Binding Specificity, StringFormat=N2}" HorizontalAlignment="Right"></TextBlock>
+            </StackPanel>
+        </StackPanel>
+        <TextBlock Grid.Row="5" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding CurrentStep}"></TextBlock>
     </Grid>
 </Window>

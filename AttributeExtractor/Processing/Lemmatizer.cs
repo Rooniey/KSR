@@ -1,28 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
-using System.Threading.Tasks;
 using LemmaSharp;
 
 
 namespace AttributeExtractor.Processing
 {
-    public class Lemmatizer
+    public class Lemmatizer : ITokenProcessor
     {
-        private static ILemmatizer _lemmatizer = new LemmatizerPrebuiltCompact(LanguagePrebuilt.English);
+        private static readonly LemmatizerPrebuiltCompact _lemmatizer = new LemmatizerPrebuiltCompact(LanguagePrebuilt.English);
 
-
-        public static List<Token> Process(List<Token> tokens)
+        public List<string> Process(List<string> tokens)
         {
-            foreach (var token in tokens)
-            {
-                token.Word = _lemmatizer.Lemmatize(token.Word);
-            }
-
-            return tokens;
-
+            return tokens.Select(t => _lemmatizer.Lemmatize(t)).ToList();
         }
 
     }

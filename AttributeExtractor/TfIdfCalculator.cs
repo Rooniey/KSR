@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AttributeExtractor.Model;
-using DataSetParser.Model;
 
 namespace AttributeExtractor
 {
-    public class TfIdfCalculator
+    public static class TfIdfCalculator
     {
-
-        public static double CalculateTfIdf(string term, List<string> article, List<List<string>> documents)
+        public static double CalculateTfIdf(string term, List<string> article, List<List<string>> documents, Dictionary<string, double> cachedIdfDictionary)
         {
             double tf = CalculateTermFrequency(term, article);
+
+            if (cachedIdfDictionary.ContainsKey(term))
+            {
+                return tf / cachedIdfDictionary[term];
+            }
+
             int aggregateCount = 0;
 
             foreach (var document in documents)
@@ -21,6 +24,8 @@ namespace AttributeExtractor
 
             double idf = Math.Log10(documents.Count / (1.0 + aggregateCount));
 
+            cachedIdfDictionary[term] = idf;
+
             return tf / idf;
         }
 
@@ -29,35 +34,5 @@ namespace AttributeExtractor
             int termsCount = articleTokens.Count(t => t == term);
             return (1.0 * termsCount) / articleTokens.Count;
         }
-
-        public static Dictionary<string, double> ExtractTfIdfVector(TokenizedArticle article, List<TokenizedArticle> documents, List<string> keywords)
-        {
-            return keywords
-                .Select(kw => 
-                    (
-                        kw,
-                        CalculateTfIdf(kw, article.Tokens.Select(at => at.Word).ToList(),
-                            documents.Select(d => d.Tokens.Select(at => at.Word).ToList()).ToList())
-                    )
-                ).ToDictionary(pair => pair.Item1, pair => pair.Item2);
-//            return article.Tokens.Select(t => CalculateTfIdf(t.Word, article.Tokens.Select(at => at.Word).ToList(), documents.Select(d => d.Tokens.Select(at => at.Word).ToList()).ToList())).ToArray();
-        }
-
-        public static double[] ONLY_TF_ExtractNGramTfIdfVector(TokenizedArticle article, List<TokenizedArticle> documents, int n = 3)
-        {
-            double[] resultVector = new double[article.Tokens.Count-n];
-            List<string> nGrams = new List<string>();
-            for (int i = 0; i < article.Tokens.Count - n; i++)
-            {
-                var ngramToken = String.Join(" ", article.Tokens.Select(t => t.Word).Skip(i).Take(n).ToArray());
-                nGrams.Add(ngramToken);
-                
-            }
-            //todo ADD KEYWORDS and maybe dict instead of aray
-//            var documentsTokens = documents.Select(d => d.Tokens.Select(at => at.Word).ToList()).ToList();
-            return nGrams.Select(g => CalculateTermFrequency(g, nGrams)).ToArray();
-
-        }
-
     }
 }

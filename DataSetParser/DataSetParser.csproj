@@ -41,13 +41,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constants.cs" />
     <Compile Include="Model\Article.cs" />
-    <Compile Include="Model\LabeledArticle.cs" />
-    <Compile Include="Model\Token.cs" />
-    <Compile Include="Model\TokenizedArticle.cs" />
-    <Compile Include="Model\VectorizedArticle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SgmDataReader.cs" />
+    <Compile Include="Utility.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{B863EAFB-FB3A-48D3-A087-F3A92DAAE394}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
