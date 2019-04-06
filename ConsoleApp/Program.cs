@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AttributeExtractor;
+using AttributeExtractor.Model;
 using AttributeExtractor.Processing;
+using Classification.distance;
+using Classification.domain;
 using DataSetParser;
 using DataSetParser.Model;
+using Statistics;
 
 
 namespace ConsoleApp
@@ -134,23 +138,13 @@ namespace ConsoleApp
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
         }
 
-        private static Dictionary<string, int> GetMostFrequentTerms(List<LabeledArticle> articles, int termCount = 20)
+        private static Dictionary<string, int> GetMostFrequentTerms(List<TokenizedArticle> tokenizedArticles, int termCount = 20)
         {
-            List<TokenizedArticle> allTokenizedArticles = new List<TokenizedArticle>();
-
-            foreach (var article in articles)
-            {
-                var art = TextUtility.ReplaceSpecialCharacters(article.Article.Body);
-                var processedWords = StopWordsFilterProcessor.Process(Tokenizer.TokenizeWords(art));
-                processedWords = Lemmatizer.Process(processedWords);
-                var tokenized = new TokenizedArticle(article, processedWords);
-                allTokenizedArticles.Add(tokenized);
-
-            }
+            
 
 
             Dictionary<string, int> countDictionary = new Dictionary<string, int>();
-            foreach (var tokenizedArticle in allTokenizedArticles)
+            foreach (var tokenizedArticle in tokenizedArticles)
             {
                 foreach (var token in tokenizedArticle.Tokens)
                 {
@@ -171,18 +165,96 @@ namespace ConsoleApp
                 .ToDictionary(pair => pair.Key, pair => pair.Value);
         }
 
+        private static List<TokenizedArticle> GetTokenizedArticles(List<LabeledArticle> articles)
+        {
+            List<TokenizedArticle> allTokenizedArticles = new List<TokenizedArticle>();
+
+            foreach (var article in articles)
+            {
+                var art = TextUtility.ReplaceSpecialCharacters(article.Article.Body);
+                var processedWords = StopWordsFilterProcessor.Process(Tokenizer.TokenizeWords(art));
+                processedWords = Lemmatizer.Process(processedWords);
+                var tokenized = new TokenizedArticle(article, processedWords);
+                allTokenizedArticles.Add(tokenized);
+            }
+
+            return allTokenizedArticles;
+        }
+
         private static void SavedMain(List<LabeledArticle> articles)
         {
-            var mostFrequentWords = GetMostFrequentTerms(articles, 5).Select(d => d.Key).ToArray();
-            var dictionary = GetMostFrequentTermsForLabel(articles, "usa", 30, mostFrequentWords);
-            var d1 = GetMostFrequentTermsForLabel(articles, "west-germany",30, mostFrequentWords);
-            var d2 = GetMostFrequentTermsForLabel(articles, "france",30, mostFrequentWords);
-            var d3 = GetMostFrequentTermsForLabel(articles, "uk",30, mostFrequentWords);
-            var d4 = GetMostFrequentTermsForLabel(articles, "canada", 30, mostFrequentWords);
-            var d5 = GetMostFrequentTermsForLabel(articles, "japan", 30, mostFrequentWords);
+            string[] PLACES_NAMES = {"usa", "west-germany", "france", "uk", "canada", "japan"};
+            var allTokenizedArticles = GetTokenizedArticles(articles);
+
+            List<TokenizedArticle> trainingArticles = new List<TokenizedArticle>();
+            List<TokenizedArticle> testArticles = new List<TokenizedArticle>();
+            for (int i = 0, cutoffIndex = (int)(allTokenizedArticles.Count*0.6); i < allTokenizedArticles.Count; i++)
+            {
+                if (i < cutoffIndex)
+                    trainingArticles.Add(allTokenizedArticles[i]);
+                else
+                    testArticles.Add(allTokenizedArticles[i]);
+            }
+
+            var mostFrequentWords = GetMostFrequentTerms(trainingArticles, 5).Select(d => d.Key).ToArray();
+//            var dictionary = GetMostFrequentTermsForLabel(articles, "usa", 30, mostFrequentWords);
+//            var d1 = GetMostFrequentTermsForLabel(articles, "west-germany",30, mostFrequentWords);
+//            var d2 = GetMostFrequentTermsForLabel(articles, "france",30, mostFrequentWords);
+//            var d3 = GetMostFrequentTermsForLabel(articles, "uk",30, mostFrequentWords);
+//            var d4 = GetMostFrequentTermsForLabel(articles, "canada", 30, mostFrequentWords);
+//            var d5 = GetMostFrequentTermsForLabel(articles, "japan", 30, mostFrequentWords);
+
+            var CountryKeywords = PLACES_NAMES
+                .Select(place => GetMostFrequentTermsForLabel(articles, place, 10, mostFrequentWords)
+                    .Select(pair => pair.Key)).Aggregate((sum, next) => sum.Concat(next)).Distinct().ToList();
+
+            Console.WriteLine(CountryKeywords);
 
 
-            Console.WriteLine(dictionary);
+            List<VectorizedArticle> vectorizedTestArticles = testArticles
+                .Select(article => new VectorizedArticle(article, TfIdfCalculator.ExtractTfIdfVector(article, allTokenizedArticles, CountryKeywords)))
+                .ToList();
+
+            List<VectorizedArticle> vectorizedTrainingArticles = trainingArticles
+                .Select(article => new VectorizedArticle(article, TfIdfCalculator.ExtractTfIdfVector(article, allTokenizedArticles, CountryKeywords)))
+                .ToList();
+
+            var centroids = vectorizedTrainingArticles
+                .Select(ta => new Centroid(ta.FeatureVector.Select(f => f.Value).ToArray())).ToArray();
+            KNNAlgorithm algorithm = new KNNAlgorithm(
+                new EuclideanMetric(),
+                centroids,
+                5);
+
+            foreach (var vectorizedTestArticle in vectorizedTestArticles)
+            {
+                vectorizedTestArticle.Prediction = algorithm.ProcessInput(vectorizedTestArticle.FeatureVector.Select(f => f.Value).ToArray(), false);
+            }
+
+            var dimension = vectorizedTestArticles.First().FeatureVector.Count;
+            
+            Dictionary<string, Dictionary<string, int>> confusionMatrix = new Dictionary<string, Dictionary<string, int>>();
+
+            foreach (var article in vectorizedTestArticles)
+            {
+                var label = article.Article.LabeledArticle.Label;
+                if (!confusionMatrix.ContainsKey(article.Prediction))
+                {
+                    confusionMatrix[article.Prediction] = confusionMatrix.Keys.ToDictionary(key => key, key => 0);
+                    confusionMatrix[article.Prediction][label] = 1;
+                }
+                else
+                {
+                    confusionMatrix[article.Prediction][label]++;
+                }
+            }
+
+            var intConfusionMatrix =
+                confusionMatrix.Select(row => row.Value.Select(cell => cell.Value).ToArray()).ToArray();
+
+            var fitness = PerformanceCalculator.CalculatePerformanceMeasures(intConfusionMatrix);
+
+            Console.WriteLine(fitness);
 
         }
     }

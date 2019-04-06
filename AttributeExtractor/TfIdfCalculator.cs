@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AttributeExtractor.Model;
 using DataSetParser.Model;
 
 namespace AttributeExtractor
@@ -29,9 +30,17 @@ namespace AttributeExtractor
             return (1.0 * termsCount) / articleTokens.Count;
         }
 
-        public static double[] ExtractTfIdfVector(TokenizedArticle article, List<TokenizedArticle> documents)
+        public static Dictionary<string, double> ExtractTfIdfVector(TokenizedArticle article, List<TokenizedArticle> documents, List<string> keywords)
         {
-            return article.Tokens.Select(t => CalculateTfIdf(t.Word, article.Tokens.Select(at => at.Word).ToList(), documents.Select(d => d.Tokens.Select(at => at.Word).ToList()).ToList())).ToArray();
+            return keywords
+                .Select(kw => 
+                    (
+                        kw,
+                        CalculateTfIdf(kw, article.Tokens.Select(at => at.Word).ToList(),
+                            documents.Select(d => d.Tokens.Select(at => at.Word).ToList()).ToList())
+                    )
+                ).ToDictionary(pair => pair.Item1, pair => pair.Item2);
+//            return article.Tokens.Select(t => CalculateTfIdf(t.Word, article.Tokens.Select(at => at.Word).ToList(), documents.Select(d => d.Tokens.Select(at => at.Word).ToList()).ToList())).ToArray();
         }
 
         public static double[] ONLY_TF_ExtractNGramTfIdfVector(TokenizedArticle article, List<TokenizedArticle> documents, int n = 3)

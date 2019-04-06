@@ -63,9 +63,9 @@
       <Project>{d55b7c11-c534-4adf-a53e-a752b8309af7}</Project>
       <Name>DataSetParser</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Presentation\Presentation.csproj">
-      <Project>{7d00a28e-4ae8-4582-a374-7687a75870fe}</Project>
-      <Name>Presentation</Name>
+    <ProjectReference Include="..\Statistics\Statistics.csproj">
+      <Project>{03c36010-7de2-462c-809d-610116ad2cce}</Project>
+      <Name>Statistics</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Classification.domain
 {
-    class KNNAlgorithm
+    public class KNNAlgorithm
     {
         private readonly IMetric _metric;
 

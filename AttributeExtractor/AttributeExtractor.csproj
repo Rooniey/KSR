@@ -54,14 +54,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extracting\IFeatureExtractor.cs" />
+    <Compile Include="Model\Keywords.cs" />
     <Compile Include="Processing\ITokenProcessor.cs" />
     <Compile Include="Processing\Lemmatizer.cs" />
     <Compile Include="Processing\StopWordsFilterProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextUtility.cs" />
     <Compile Include="TfIdfCalculator.cs" />
-    <Compile Include="Token.cs" />
-    <Compile Include="TokenizedArticle.cs" />
     <Compile Include="Tokenizer.cs" />
   </ItemGroup>
   <ItemGroup>
