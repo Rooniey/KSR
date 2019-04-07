@@ -27,5 +27,18 @@ namespace AttributeExtractor.Utility
                 dict[key] += val;
             }
         }
+
+        public static TValue GetOrCreate<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue val)
+        {
+
+            if (!dict.TryGetValue(key, out val))
+            {
+                dict.Add(key, val);
+            }
+
+            return val;
+        }
+
+
     }
 }

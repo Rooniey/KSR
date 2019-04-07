@@ -13,7 +13,7 @@
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
-        Title="Text classification app" Height="450" Width="800"
+        Title="Text classification app" Height="650" Width="1000"
         mc:Ignorable="d">
     <Window.Resources>
         <Style x:Key="Label" TargetType="TextBlock">
@@ -37,16 +37,14 @@
             <Setter Property="Margin" Value="10 0"/>
             <Setter Property="HorizontalAlignment" Value="Left" />
         </Style>
-        <base:BooleanToVisibilityConverter x:Key="InvertVisibleIfTrueConverter" 
-                                           True="Collapsed" 
-                                           False="Visible"/>
-        <base:BooleanToVisibilityConverter x:Key="VisibleIfTrueConverter" 
-                                           True="Visible" 
-                                           False="Collapsed"/>
+        <Style x:Key="SmallGrid" TargetType="Grid">
+            <Setter Property="Margin" Value="10 10"/>
+        </Style>
+        <base:BooleanToVisibilityConverter x:Key="VisibleIfTrueConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*"></ColumnDefinition>
+            <ColumnDefinition Width="4*"></ColumnDefinition>
             <ColumnDefinition Width="2.5*"></ColumnDefinition>
             <ColumnDefinition Width="2.5*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
@@ -78,71 +76,120 @@
         <StackPanel
             Grid.Row="1"
             Grid.Column="0"
-            Style="{StaticResource CustomStackPanel}">
+            Style="{StaticResource CustomStackPanel}"
+            Orientation="Horizontal">
 
-            <TextBlock Style="{StaticResource Label}"
-                       Text="K for kNN:" />
-            <TextBox Style="{StaticResource Value}"
-                       Width="100"
-                       Text="{Binding K, UpdateSourceTrigger=PropertyChanged}" />
+            <StackPanel Orientation="Vertical">
+                <TextBlock Style="{StaticResource Label}"
+                           Text="K for kNN:" />
+                <TextBox Style="{StaticResource Value}"
+                         Width="100"
+                         Text="{Binding K, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Margin="50 0">
+                <TextBlock Style="{StaticResource Label}"
+                           Text="Cold start size:" />
+                <TextBox Style="{StaticResource Value}"
+                         Width="100"
+                         Text="{Binding ColdStartSize, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+            
         </StackPanel>
         <StackPanel
             Grid.Row="2"
             Grid.Column="0"
-            Style="{StaticResource CustomStackPanel}">
+            Style="{StaticResource CustomStackPanel}"
+            Orientation="Horizontal">
 
-            <TextBlock Style="{StaticResource Label}"
-                       Text="# of keywords to cut:" />
-            <TextBox Style="{StaticResource Value}"
-                     Width="100"
-                     Text="{Binding MostFrequentTermsToCutCount, UpdateSourceTrigger=PropertyChanged}" />
+            <StackPanel Orientation="Vertical">
+                <TextBlock Style="{StaticResource Label}"
+                           Text="# of keywords to cut:" />
+                <TextBox Style="{StaticResource Value}"
+                         Width="100"
+                         Text="{Binding MostFrequentTermsToCutCount, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+
+            <StackPanel Orientation="Vertical" Margin="10 0">
+                <TextBlock Style="{StaticResource Label}"
+                           Text="Keywords per label:" />
+                <TextBox Style="{StaticResource Value}"
+                         Width="100"
+                         Text="{Binding KeywordsPerLabelCount, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
         </StackPanel>
-        <StackPanel
-            Grid.Row="3"
-            Grid.Column="0"
-            Style="{StaticResource CustomStackPanel}">
+
+        <Grid Grid.Row="3" Grid.Column="0" Style="{StaticResource SmallGrid}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+
 
             <TextBlock Style="{StaticResource Label}"
-                       Text="Metric:" />
+                       Text="Feature extractor:"
+                       Grid.Column="0" Grid.Row="0"/>
 
             <ComboBox
-                ItemsSource="{Binding Metrics}"
-                SelectedItem="{Binding Metric}"></ComboBox>
-        </StackPanel>
-        <StackPanel
-            Grid.Row="4"
-            Grid.Column="0"
-            Style="{StaticResource CustomStackPanel}">
-
-            <TextBlock Style="{StaticResource Label}"
-                       Text="Feature extractor:" />
-
-            <ComboBox
+                Margin="0 0 20 0"
+                Grid.Column="0" Grid.Row="1"
                 ItemsSource="{Binding FeatureExtractors}"
                 SelectedItem="{Binding FeatureExtractor}"></ComboBox>
-        </StackPanel>
-        <StackPanel
-            Grid.Row="5"
-            Grid.Column="0"
-            Style="{StaticResource CustomStackPanel}">
 
-            <TextBlock Style="{StaticResource Label}"
+
+            <TextBlock Grid.Column="1" Grid.Row="0"
+                       Style="{StaticResource Label}"
+                       Text="Label:" />
+
+            <ComboBox Grid.Column="1" Grid.Row="1"
+                      Margin="0 0 20 0"
+                    ItemsSource="{Binding Labels}"
+                    SelectedItem="{Binding SelectedLabel}"></ComboBox>
+
+
+        </Grid>
+        <Grid Grid.Row="4" Grid.Column="0" Style="{StaticResource SmallGrid}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0"
+                       Style="{StaticResource Label}"
                        Text="Word comparator:" />
 
-            <ComboBox
+            <ComboBox Grid.Row="1" Grid.Column="0"
+                      Margin="0 0 20 0"
                 ItemsSource="{Binding WordComparators}"
                 SelectedItem="{Binding WordComparator}"></ComboBox>
-        </StackPanel>
+
+            <TextBlock Grid.Row="0" Grid.Column="1"
+                       Style="{StaticResource Label}"
+                       Text="Metric:" />
+
+            <ComboBox Grid.Row="1" Grid.Column="1"
+                      Margin="0 0 20 0"
+                ItemsSource="{Binding Metrics}"
+                SelectedItem="{Binding Metric}"></ComboBox>
+        </Grid>
         <StackPanel
             Grid.Row="6"
             Grid.Column="0"
             Style="{StaticResource CustomStackPanel}">
 
             <TextBlock Style="{StaticResource Label}"
-                       Text="Data set path" />
-            <TextBox Style="{StaticResource Value}"
-                     Width="200"
-                     Text="{Binding DataSetDirectory, UpdateSourceTrigger=PropertyChanged}" />
+                       Text="Use custom dataset:" />
+            <CheckBox 
+                     IsChecked="{Binding IsCustomDataSet, UpdateSourceTrigger=PropertyChanged}" />
         </StackPanel>
         <Button Grid.Row="0" 
                 Grid.Column="1" 
@@ -183,14 +230,12 @@
                   Grid.Row="2" 
                   Grid.RowSpan="3" 
                   CanUserSortColumns="False"
-                  Visibility="{Binding IsLoading, Converter={StaticResource InvertVisibleIfTrueConverter}}"
                   ItemsSource="{Binding Data.DefaultView}" AutoGenerateColumns="True" />
 
         <StackPanel 
-            Grid.Row="3"
+            Grid.Row="6"
             Grid.Column="1"
             Grid.ColumnSpan="2"
-            Grid.RowSpan="2"
             HorizontalAlignment="Center"
             Visibility="{Binding IsLoading, Converter={StaticResource VisibleIfTrueConverter}}">
             <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}" 
@@ -198,12 +243,11 @@
                          IsIndeterminate="True" 
                          />
             <TextBlock 
-                        Margin="0 10"
-                       Text="{Binding CurrentStep}"/>
-
-            
+                Margin="5 5"
+                HorizontalAlignment="Right"
+                Text="{Binding CurrentStep}"/>
         </StackPanel>
         
-        
+
     </Grid>
 </Window>

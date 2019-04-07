@@ -21,10 +21,10 @@ namespace AttributeExtractor.Extracting
             _mostFrequentTermsToCutCount = mostFrequentTermsToCutCount;
         }
 
-        public List<string> ExtractKeywords(List<Article> trainingSet, List<string> labels)
+        public List<string> ExtractKeywords(List<Article> trainingSet, List<string> labels, int keywordCount = 20)
         {
             return labels
-                .Select(place => GetMostFrequentTermsForLabel(trainingSet, place)
+                .Select(place => GetMostFrequentTermsForLabel(trainingSet, place, keywordCount)
                     .Select(pair => pair.Key)).Aggregate((sum, next) => sum.Concat(next)).Distinct().ToList();
         }
 
@@ -48,7 +48,7 @@ namespace AttributeExtractor.Extracting
         }
 
 
-        public List<string> GetMostFrequentTerms(List<Article> tokenizedArticles, int termCount = 20)
+        public List<string> GetMostFrequentTerms(List<Article> tokenizedArticles)
         {
             Dictionary<string, int> countDictionary = new Dictionary<string, int>();
 
@@ -68,14 +68,14 @@ namespace AttributeExtractor.Extracting
 
             return countDictionary
                 .OrderByDescending(pair => pair.Value)
-                .Take(termCount)
+                .Take(_mostFrequentTermsToCutCount)
                 .Select(pair => pair.Key)
                 .ToList();
         }
 
         private void RemoveMostFrequentKeywords(List<Article> tokenizedArticles)
         {
-            var mostFrequentWords = GetMostFrequentTerms(tokenizedArticles, _mostFrequentTermsToCutCount);
+            var mostFrequentWords = GetMostFrequentTerms(tokenizedArticles);
 
             var _postProcessor = new StopWordsFilterProcessor(mostFrequentWords);
 

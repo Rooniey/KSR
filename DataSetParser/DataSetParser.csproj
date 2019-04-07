@@ -41,7 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Constants.cs" />
     <Compile Include="CsvDataReader.cs" />
     <Compile Include="DataSetReader.cs" />
     <Compile Include="Model\Article.cs" />

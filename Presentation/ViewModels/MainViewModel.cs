@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 using AttributeExtractor;
 using AttributeExtractor.Extracting;
 using AttributeExtractor.Processing;
+using AttributeExtractor.Utility;
 using Classification;
 using Classification.distance;
 using DataSetParser;
+using DataSetParser.Model;
 using Presentation.Base;
 using Statistics;
 using Statistics.model;
@@ -26,16 +28,16 @@ namespace Presentation.ViewModels
             set => SetProperty(ref _k, value);
         }
 
-        private string _dataSetDirectory = "../../../Data/reuters";
+        private bool _isCustomDataSet = false;
 
-        public string DataSetDirectory
+        public bool IsCustomDataSet
         {
-            get => _dataSetDirectory;
-            set => SetProperty(ref _dataSetDirectory, value);
+            get => _isCustomDataSet;
+            set => SetProperty(ref _isCustomDataSet, value);
         }
 
 
-        public bool IsCustomDataSet => _dataSetDirectory == "../../../Data/reuters";
+        public string DataSetDirectory => _isCustomDataSet ? "../../../Data/custom" : "../../../Data/reuters";
 
         private string _selectedLabel = "PLACES";
 
@@ -62,7 +64,7 @@ namespace Presentation.ViewModels
             set => SetProperty(ref _wordComparator, value);
         }
 
-        private readonly List<string> _metrics = new List<string>() { "EUCLIDEAN", "MANHATTAN", "CHEBYSHEV" };
+        private readonly List<string> _metrics = new List<string>() { "EUCLIDEAN", "MANHATTAN", "CZEBYSZEW", "JACCARD" };
 
         public List<string> Metrics => _metrics;
 
@@ -134,6 +136,23 @@ namespace Presentation.ViewModels
             set => SetProperty(ref _isLoading, value); 
         }
 
+        private int _keywordsPerLabelCount = 20;
+
+        public int KeywordsPerLabelCount
+        {
+            get { return _keywordsPerLabelCount; }
+            set => SetProperty(ref _keywordsPerLabelCount, value);
+        }
+
+        private int _coldStartSize = 200;
+
+        public int ColdStartSize
+        {
+            get { return _coldStartSize; }
+            set => SetProperty(ref _coldStartSize, value);
+        }
+
+
 
         private AsyncCommand _startCommand;
 
@@ -145,6 +164,12 @@ namespace Presentation.ViewModels
             {
                 case "EUCLIDEAN":
                     return new EuclideanMetric();
+                case "CZEBYSZEW":
+                    return new CzebyszewMetric();
+                case "MANHATTAN":
+                    return new ManhattanMetric();
+                case "JACCARD":
+                    return new JaccardMetric();
                 default:
                     throw new InvalidEnumArgumentException("metric");
             }
@@ -163,29 +188,18 @@ namespace Presentation.ViewModels
             }
         }
 
-        private string[] GetLabels(string name)
-        {
-            switch (name)
-            {
-                case "PLACES":
-                    return Constants.PLACES;
-                case "TOPICS":
-                    return Constants.PLACES;
-                default:
-                    throw new InvalidEnumArgumentException("TODO add different labels"); //TODO add different labels
-            }
-        }
-
         public MainViewModel()
         {
 
-            IsLoading = true;
+            
             _startCommand = new AsyncCommand((async () =>
             {
                 await Task.Run(() =>
                 {
+                    IsLoading = true;
                     CurrentStep = "Initializing";
                     var (allArticles, labels) = DataSetReader.GetArticles(DataSetDirectory, SelectedLabel);
+                    allArticles = allArticles.OrderBy(e => Guid.NewGuid()).ToList();
                     var labelsCollection = Enumerable.Range(0, labels.Count).ToDictionary(i => labels[i], i => i);
 
                     KeywordsExtractor keywordsExtractor = new KeywordsExtractor(new TfIdfTokenCalculator(), MostFrequentTermsToCutCount);
@@ -212,7 +226,7 @@ namespace Presentation.ViewModels
                     var (trainingSet, testSet) = Utility.DivideDataSet(allArticles, TrainingSetFraction);
 
                     CurrentStep = "Extracting keywords";
-                    var keywords = keywordsExtractor.ExtractKeywords(trainingSet, labels);
+                    var keywords = keywordsExtractor.ExtractKeywords(trainingSet, labels, KeywordsPerLabelCount);
 
 
                     IFeatureExtractor featureExtractor = new KeywordCountFeatureExtractor();
@@ -228,34 +242,13 @@ namespace Presentation.ViewModels
                         article.FeatureVector = featureExtractor.ExtractFeatures(article.Tokens, allArticles.Select(a => a.Tokens).ToList(), keywords);
                     }
 
-
                     CurrentStep = "Predicting";
-                    KNNApi.UseKNN(trainingSet, GetMetric(Metric), K, testSet);
+                    KNNApi.UseKNN(trainingSet.Take(ColdStartSize).ToList(), GetMetric(Metric), K, testSet);
 
                     CurrentStep = "Calculating statistics";
                     PerformanceMeasures = PerformanceCalculator.CalculatePerformanceMeasures(testSet, labelsCollection);
 
-                    Data = new DataTable();
-
-                    Data.Columns.Add("actual\\predicted");
-
-                    var tmp = labelsCollection.ToDictionary(pair => pair.Value, pair => pair.Key);
-                    for (int i = 0; i < PerformanceMeasures.ConfusionMatrix[0].Length; i++)
-                    {
-                        Data.Columns.Add(tmp[i]);
-                    }
-
-                    int numberOfClasses = PerformanceMeasures.ConfusionMatrix[0].Length;
-                    for (int i = 0; i < numberOfClasses; i++)
-                    {
-                        Object[] row = new object[numberOfClasses+1];
-                        row[0] = tmp[i];
-                        for (int j = 0; j < numberOfClasses; j++)
-                        {
-                            row[j + 1] = PerformanceMeasures.ConfusionMatrix[i][j];
-                        }
-                        Data.Rows.Add(row);
-                    }
+                    ShowDataGrid(labelsCollection);
                     CurrentStep = "";
                     IsLoading = false;
                 });
@@ -263,5 +256,30 @@ namespace Presentation.ViewModels
             
         }
 
+        private void ShowDataGrid(Dictionary<string, int> labelsCollection)
+        {
+            Data = new DataTable();
+
+            Data.Columns.Add("actual\\predicted");
+
+            var tmp = labelsCollection.ToDictionary(pair => pair.Value, pair => pair.Key);
+            for (int i = 0; i < PerformanceMeasures.ConfusionMatrix[0].Length; i++)
+            {
+                Data.Columns.Add(tmp[i]);
+            }
+
+            int numberOfClasses = PerformanceMeasures.ConfusionMatrix[0].Length;
+            for (int i = 0; i < numberOfClasses; i++)
+            {
+                Object[] row = new object[numberOfClasses + 1];
+                row[0] = tmp[i];
+                for (int j = 0; j < numberOfClasses; j++)
+                {
+                    row[j + 1] = PerformanceMeasures.ConfusionMatrix[i][j];
+                }
+
+                Data.Rows.Add(row);
+            }
+        }
     }
 }
