@@ -26,7 +26,7 @@ namespace AttributeExtractor
 
             cachedIdfDictionary[term] = idf;
 
-            return tf / idf;
+            return tf * idf;
         }
 
         public static double CalculateTermFrequency(string term, List<string> articleTokens)
