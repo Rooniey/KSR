@@ -80,12 +80,52 @@ namespace Presentation.ViewModels
 
         public List<string> FeatureExtractors => _featureExtractors;
 
-        private string _featureExtractor = "BINARY";
+        private string _featureExtractor = "COUNT";
 
         public string FeatureExtractor
         {
             get => _featureExtractor;
             set => SetProperty(ref _featureExtractor, value);
+        }
+
+        public IFeatureExtractor GetFeatureExtractorExtractor(string name)
+        {
+            switch (name)
+            {
+                case "BINARY":
+                    return new KeywordBinaryFeatureExtractor();
+                case "COUNT":
+                    return new KeywordCountFeatureExtractor();
+                case "TFIDF":
+                    throw new NotImplementedException();
+                default:
+                    throw new ArgumentOutOfRangeException("no such extractor");
+            }
+        }
+
+        private readonly List<string> _keywordExtractors = new List<string>() { "TFIDF", "COUNT"};
+
+        public List<string> KeywordExtractors => _keywordExtractors;
+
+        private string _keywordExtractor = "COUNT";
+
+        public string KeywordExtractor
+        {
+            get => _keywordExtractor;
+            set => SetProperty(ref _keywordExtractor, value);
+        }
+
+        public ITokenValueCalculator GetKeywordExtractor(string name)
+        {
+            switch (name)
+            {
+                case "COUNT":
+                    return new TokenCountCalculator();
+                case "TFIDF":
+                    return new TfIdfTokenCalculator();
+                default:
+                    throw new ArgumentOutOfRangeException("no such extractor");
+            }
         }
 
         private double _trainingSetFraction = 0.6;
@@ -202,7 +242,7 @@ namespace Presentation.ViewModels
                     allArticles = allArticles.OrderBy(e => Guid.NewGuid()).ToList();
                     var labelsCollection = Enumerable.Range(0, labels.Count).ToDictionary(i => labels[i], i => i);
 
-                    KeywordsExtractor keywordsExtractor = new KeywordsExtractor(new TfIdfTokenCalculator(), MostFrequentTermsToCutCount);
+                    KeywordsExtractor keywordsExtractor = new KeywordsExtractor(GetKeywordExtractor(KeywordExtractor), MostFrequentTermsToCutCount);
                     foreach (var article in allArticles)
                     {
                         article.Tokens = Tokenizer.TokenizeWords(article.Body);
@@ -229,7 +269,7 @@ namespace Presentation.ViewModels
                     var keywords = keywordsExtractor.ExtractKeywords(trainingSet, labels, KeywordsPerLabelCount);
 
 
-                    IFeatureExtractor featureExtractor = new KeywordCountFeatureExtractor();
+                    IFeatureExtractor featureExtractor = GetFeatureExtractorExtractor(FeatureExtractor);
 
                     CurrentStep = "Extracting features";
                     foreach (var article in testSet)
