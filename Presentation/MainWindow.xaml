@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:base="clr-namespace:Presentation.Base"
         DataContext="{StaticResource MainViewModel}"
         xmlns:local="clr-namespace:Presentation"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -31,11 +32,23 @@
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="Margin" Value="10 5 10 5" />
         </Style>
+        <Style x:Key="SmallLabelLeft" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Margin" Value="10 0"/>
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+        <base:BooleanToVisibilityConverter x:Key="InvertVisibleIfTrueConverter" 
+                                           True="Collapsed" 
+                                           False="Visible"/>
+        <base:BooleanToVisibilityConverter x:Key="VisibleIfTrueConverter" 
+                                           True="Visible" 
+                                           False="Collapsed"/>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*"></ColumnDefinition>
-            <ColumnDefinition Width="5*"></ColumnDefinition>
+            <ColumnDefinition Width="2.5*"></ColumnDefinition>
+            <ColumnDefinition Width="2.5*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
@@ -121,7 +134,7 @@
                 SelectedItem="{Binding WordComparator}"></ComboBox>
         </StackPanel>
         <StackPanel
-            Grid.Row="7"
+            Grid.Row="6"
             Grid.Column="0"
             Style="{StaticResource CustomStackPanel}">
 
@@ -131,25 +144,66 @@
                      Width="200"
                      Text="{Binding DataSetDirectory, UpdateSourceTrigger=PropertyChanged}" />
         </StackPanel>
-        <Button Grid.Row="0" Grid.Column="1" Command="{Binding StartCommand}" Content="Predict" Width="200" HorizontalAlignment="Right" Margin="10 0"></Button>
-        <StackPanel Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Orientation="Vertical" DataContext="{Binding PerformanceMeasures}">
-            <StackPanel Orientation="Horizontal" Width="200" HorizontalAlignment="Left">
-                <TextBlock Text="Accuracy:" Margin="10 0"></TextBlock>
+        <Button Grid.Row="0" 
+                Grid.Column="1" 
+                Grid.ColumnSpan="2" 
+                Command="{Binding StartCommand}" 
+                Content="Predict" 
+                Width="200" 
+                HorizontalAlignment="Right" 
+                Margin="10 0"/>
+        <StackPanel Grid.Column="1" 
+                    Grid.Row="1" 
+                    Grid.RowSpan="3" 
+                    Orientation="Vertical" 
+                    DataContext="{Binding PerformanceMeasures}">
+            <TextBlock HorizontalAlignment="Center" FontSize="15" Text="Measures"/>
+            <DockPanel Width="200" HorizontalAlignment="Left">
+                <TextBlock Text="Accuracy:" Style="{StaticResource SmallLabelLeft}"/>
                 <TextBlock Text="{Binding AverageAccuracy, StringFormat=N2}" HorizontalAlignment="Right"></TextBlock>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Width="200" HorizontalAlignment="Left">
-                <TextBlock Text="Precision:" Margin="10 0"></TextBlock>
+            </DockPanel>
+            <DockPanel Width="200" HorizontalAlignment="Left">
+                <TextBlock Text="Precision:" Style="{StaticResource SmallLabelLeft}"/>
                 <TextBlock Text="{Binding Precision, StringFormat=N2}" HorizontalAlignment="Right"></TextBlock>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Width="200" HorizontalAlignment="Left">
-                <TextBlock Text="Recall:" Margin="10 0"></TextBlock>
+            </DockPanel>
+            <DockPanel Width="200" HorizontalAlignment="Left">
+                <TextBlock Text="Recall:" Style="{StaticResource SmallLabelLeft}" />
                 <TextBlock Text="{Binding Recall, StringFormat=N2}" HorizontalAlignment="Right"></TextBlock>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Width="200" HorizontalAlignment="Left">
-                <TextBlock Text="Specificity:" Margin="10 0"></TextBlock>
+            </DockPanel>
+            <DockPanel Width="200" HorizontalAlignment="Left">
+                <TextBlock Text="Specificity:" Margin="10 0" Style="{StaticResource SmallLabelLeft}" />
                 <TextBlock Text="{Binding Specificity, StringFormat=N2}" HorizontalAlignment="Right"></TextBlock>
-            </StackPanel>
+            </DockPanel>
         </StackPanel>
-        <TextBlock Grid.Row="5" Grid.Column="1" HorizontalAlignment="Right" Text="{Binding CurrentStep}"></TextBlock>
+
+ 
+        <DataGrid Grid.Column="1" 
+                  Padding="10"
+                  Grid.ColumnSpan="2" 
+                  Grid.Row="2" 
+                  Grid.RowSpan="3" 
+                  CanUserSortColumns="False"
+                  Visibility="{Binding IsLoading, Converter={StaticResource InvertVisibleIfTrueConverter}}"
+                  ItemsSource="{Binding Data.DefaultView}" AutoGenerateColumns="True" />
+
+        <StackPanel 
+            Grid.Row="3"
+            Grid.Column="1"
+            Grid.ColumnSpan="2"
+            Grid.RowSpan="2"
+            HorizontalAlignment="Center"
+            Visibility="{Binding IsLoading, Converter={StaticResource VisibleIfTrueConverter}}">
+            <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}" 
+                         Value="50"
+                         IsIndeterminate="True" 
+                         />
+            <TextBlock 
+                        Margin="0 10"
+                       Text="{Binding CurrentStep}"/>
+
+            
+        </StackPanel>
+        
+        
     </Grid>
 </Window>

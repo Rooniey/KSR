@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using AttributeExtractor;
 using AttributeExtractor.Extracting;
@@ -116,7 +118,21 @@ namespace Presentation.ViewModels
             set => SetProperty(ref _currentStep, value);
         }
 
+        private DataTable _data;
 
+        public DataTable Data
+        {
+            get => _data;
+            set => SetProperty(ref _data, value);
+        }
+
+        private bool _isLoading = false;
+
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set => SetProperty(ref _isLoading, value); 
+        }
 
 
         private AsyncCommand _startCommand;
@@ -162,8 +178,8 @@ namespace Presentation.ViewModels
 
         public MainViewModel()
         {
-            
 
+            IsLoading = true;
             _startCommand = new AsyncCommand((async () =>
             {
                 await Task.Run(() =>
@@ -221,7 +237,29 @@ namespace Presentation.ViewModels
                     CurrentStep = "Calculating statistics";
                     PerformanceMeasures = PerformanceCalculator.CalculatePerformanceMeasures(testSet, labelsCollection);
 
+                    Data = new DataTable();
+
+                    Data.Columns.Add("actual\\predicted");
+
+                    var tmp = labelsCollection.ToDictionary(pair => pair.Value, pair => pair.Key);
+                    for (int i = 0; i < PerformanceMeasures.ConfusionMatrix[0].Length; i++)
+                    {
+                        Data.Columns.Add(tmp[i]);
+                    }
+
+                    int numberOfClasses = PerformanceMeasures.ConfusionMatrix[0].Length;
+                    for (int i = 0; i < numberOfClasses; i++)
+                    {
+                        Object[] row = new object[numberOfClasses+1];
+                        row[0] = tmp[i];
+                        for (int j = 0; j < numberOfClasses; j++)
+                        {
+                            row[j + 1] = PerformanceMeasures.ConfusionMatrix[i][j];
+                        }
+                        Data.Rows.Add(row);
+                    }
                     CurrentStep = "";
+                    IsLoading = false;
                 });
             }));
             
