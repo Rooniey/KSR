@@ -42,6 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="CsvDataReader.cs" />
+    <Compile Include="DataSetReader.cs" />
     <Compile Include="Model\Article.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SgmDataReader.cs" />

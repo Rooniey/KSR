@@ -185,12 +185,10 @@ namespace Presentation.ViewModels
                 await Task.Run(() =>
                 {
                     CurrentStep = "Initializing";
-                    List<string> labels = GetLabels(SelectedLabel).ToList();
+                    var (allArticles, labels) = DataSetReader.GetArticles(DataSetDirectory, SelectedLabel);
                     var labelsCollection = Enumerable.Range(0, labels.Count).ToDictionary(i => labels[i], i => i);
 
                     KeywordsExtractor keywordsExtractor = new KeywordsExtractor(new TfIdfTokenCalculator(), MostFrequentTermsToCutCount);
-
-                    var allArticles = SgmDataReader.GetArticles(DataSetDirectory, SelectedLabel);
                     foreach (var article in allArticles)
                     {
                         article.Tokens = Tokenizer.TokenizeWords(article.Body);

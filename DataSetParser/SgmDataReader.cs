@@ -10,12 +10,11 @@ namespace DataSetParser
 {
     public static class SgmDataReader
     {
-        public static List<Article> GetArticles(string dirPath, string labelName)
+        public static List<Article> GetAllArticles(string dirPath, string labelName)
         {
             return Directory.GetFiles(dirPath)
                 .Where(p => Path.GetExtension(p) == ".sgm")
-                .SelectMany(f => SgmDataReader.ReadAllSamples(f, labelName))
-                .Peek(a => a.Body = a.Body.ReplaceSpecialCharacters())
+                .SelectMany(f => ReadAllSamples(f, labelName))
                 .ToList();
         }
 
@@ -63,7 +62,7 @@ namespace DataSetParser
 
                         reader.Read();
                         string body = ReadTextElement(reader, "body");
-                        if (body != null && Constants.PLACES.Contains(label))
+                        if (body != null && label != "unknown")
                         {
                             samples.Add(new Article(body, label));
                         }
