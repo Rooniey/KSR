@@ -76,7 +76,7 @@ namespace Presentation.ViewModels
             set => SetProperty(ref _metric, value);
         }
 
-        private readonly List<string> _featureExtractors = new List<string>() { "BINARY", "COUNT", "TFIDF" };
+        private readonly List<string> _featureExtractors = new List<string>() { "BINARY", "COUNT"};
 
         public List<string> FeatureExtractors => _featureExtractors;
 
@@ -96,8 +96,6 @@ namespace Presentation.ViewModels
                     return new KeywordBinaryFeatureExtractor();
                 case "COUNT":
                     return new KeywordCountFeatureExtractor();
-                case "TFIDF":
-                    throw new NotImplementedException();
                 default:
                     throw new ArgumentOutOfRangeException("no such extractor");
             }
