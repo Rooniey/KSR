@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Statistics", "Statistics\St
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{B863EAFB-FB3A-48D3-A087-F3A92DAAE394}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeywordExtractor", "KeywordExtractor\KeywordExtractor.csproj", "{17A5EF72-9B9D-4413-9BD7-1C7F94DB6A05}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{B863EAFB-FB3A-48D3-A087-F3A92DAAE394}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B863EAFB-FB3A-48D3-A087-F3A92DAAE394}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B863EAFB-FB3A-48D3-A087-F3A92DAAE394}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17A5EF72-9B9D-4413-9BD7-1C7F94DB6A05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17A5EF72-9B9D-4413-9BD7-1C7F94DB6A05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17A5EF72-9B9D-4413-9BD7-1C7F94DB6A05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17A5EF72-9B9D-4413-9BD7-1C7F94DB6A05}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

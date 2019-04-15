@@ -6,7 +6,7 @@ namespace AttributeExtractor.Processing
 {
     public static class Tokenizer
     {
-        public static readonly string[] _separators = new[] { ",", ".", "!", "\'", " ", "\'s", "\"" };
+        public static readonly string[] _separators = new[] { ",", ".", "!", "\'", " ", "\'s", "\"", "\r\n", "\u0003", "\t", "\n", "\r" };
 
         public static List<string> TokenizeWords(string text)
         {

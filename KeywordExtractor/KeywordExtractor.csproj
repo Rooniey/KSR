@@ -4,16 +4,18 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B863EAFB-FB3A-48D3-A087-F3A92DAAE394}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Common</RootNamespace>
-    <AssemblyName>Common</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <ProjectGuid>{17A5EF72-9B9D-4413-9BD7-1C7F94DB6A05}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>KeywordExtractor</RootNamespace>
+    <AssemblyName>KeywordExtractor</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,6 +25,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,6 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -41,12 +45,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\Article.cs" />
+    <Compile Include="Extracting\ITokenValueCalculator.cs" />
+    <Compile Include="Extracting\KeywordsExtractor.cs" />
+    <Compile Include="Extracting\TfIdfTokenCalculator.cs" />
+    <Compile Include="Extracting\TokenCountCalculator.cs" />
+    <Compile Include="Extracting\TokenValueCalculatorProvider.cs" />
+    <Compile Include="InitFromConfig.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utility\TfIdfCalculator.cs" />
-    <Compile Include="Utility\DictionaryExtensions.cs" />
-    <Compile Include="Utility\LinqExtensions.cs" />
-    <Compile Include="Utility\TextUtility.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AttributeExtractor\AttributeExtractor.csproj">
+      <Project>{60433151-769E-4B0C-AC64-0724622F793B}</Project>
+      <Name>AttributeExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{B863EAFB-FB3A-48D3-A087-F3A92DAAE394}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataSetParser\DataSetParser.csproj">
+      <Project>{d55b7c11-c534-4adf-a53e-a752b8309af7}</Project>
+      <Name>DataSetParser</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AttributeExtractor
+namespace Common.Utility
 {
     public static class TfIdfCalculator
     {

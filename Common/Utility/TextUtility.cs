@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace AttributeExtractor.Utility
+namespace Common.Utility
 {
     public static class TextUtility
     {

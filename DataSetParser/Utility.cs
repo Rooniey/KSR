@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using DataSetParser.Model;
+using Common.Model;
 
 namespace DataSetParser
 {

@@ -1,10 +1,9 @@
-﻿using DataSetParser.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
-using AttributeExtractor.Utility;
+using Common.Model;
 
 namespace DataSetParser
 {

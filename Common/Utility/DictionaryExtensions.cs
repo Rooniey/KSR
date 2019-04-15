@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AttributeExtractor.Utility
+namespace Common.Utility
 {
     public static class DictionaryExtensions
     {

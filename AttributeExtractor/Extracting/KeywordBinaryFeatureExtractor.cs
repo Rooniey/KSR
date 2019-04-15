@@ -6,7 +6,7 @@ namespace AttributeExtractor.Extracting
     public class KeywordBinaryFeatureExtractor : IFeatureExtractor
     {
 
-        public Dictionary<string, double> ExtractFeatures(List<string> article, List<List<string>> allArticles, List<string> keywords)
+        public Dictionary<string, double> ExtractFeatures(List<string> article, IEnumerable<string> keywords)
         {
             Dictionary<string, double> dictionary = new Dictionary<string, double>();
             foreach (var kw in keywords)

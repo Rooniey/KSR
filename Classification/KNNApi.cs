@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AttributeExtractor.Utility;
 using Classification.distance;
 using Classification.domain;
-using DataSetParser.Model;
+using Common.Model;
+using Common.Utility;
 
 namespace Classification
 {

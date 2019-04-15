@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DataSetParser.Model
+namespace Common.Model
 {
     public class Article
     {

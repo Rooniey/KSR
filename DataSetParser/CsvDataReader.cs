@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using DataSetParser.Model;
+using Common.Model;
 
 namespace DataSetParser
 {

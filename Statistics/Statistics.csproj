@@ -50,10 +50,6 @@
       <Project>{B863EAFB-FB3A-48D3-A087-F3A92DAAE394}</Project>
       <Name>Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DataSetParser\DataSetParser.csproj">
-      <Project>{D55B7C11-C534-4ADF-A53E-A752B8309AF7}</Project>
-      <Name>DataSetParser</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

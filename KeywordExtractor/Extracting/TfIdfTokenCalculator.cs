@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Common.Utility;
 
-namespace AttributeExtractor.Extracting
+namespace KeywordExtractor.Extracting
 {
     public class TfIdfTokenCalculator : ITokenValueCalculator
     {

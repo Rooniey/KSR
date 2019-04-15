@@ -15,6 +15,9 @@
         FontFamily="{DynamicResource MaterialDesignFont}"
         Title="Text classification app" Height="650" Width="1000"
         mc:Ignorable="d">
+    <Window.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding StartCommand}"/>
+    </Window.InputBindings>
     <Window.Resources>
         <Style x:Key="Label" TargetType="TextBlock">
             <Setter Property="FontStyle" Value="Normal" />
@@ -95,28 +98,21 @@
             </StackPanel>
             
         </StackPanel>
-        <StackPanel
-            Grid.Row="2"
-            Grid.Column="0"
-            Style="{StaticResource CustomStackPanel}"
-            Orientation="Horizontal">
-
-            <StackPanel Orientation="Vertical">
-                <TextBlock Style="{StaticResource Label}"
-                           Text="# of keywords to cut:" />
-                <TextBox Style="{StaticResource Value}"
-                         Width="100"
-                         Text="{Binding MostFrequentTermsToCutCount, UpdateSourceTrigger=PropertyChanged}" />
-            </StackPanel>
-
-            <StackPanel Orientation="Vertical" Margin="10 0">
-                <TextBlock Style="{StaticResource Label}"
-                           Text="Keywords per label:" />
-                <TextBox Style="{StaticResource Value}"
-                         Width="100"
-                         Text="{Binding KeywordsPerLabelCount, UpdateSourceTrigger=PropertyChanged}" />
-            </StackPanel>
-        </StackPanel>
+         <StackPanel 
+             Grid.Row="2" 
+             Grid.Column="0" 
+             Style="{StaticResource CustomStackPanel}" 
+             Orientation="Horizontal"> 
+         
+         
+             <StackPanel Orientation="Vertical" Margin="10 0"> 
+                 <TextBlock Style="{StaticResource Label}" 
+                            Text="Keywords count:" /> 
+                 <TextBox Style="{StaticResource Value}" 
+                          Width="100" 
+                          Text="{Binding KeywordsCount, UpdateSourceTrigger=PropertyChanged}" /> 
+             </StackPanel> 
+         </StackPanel> 
 
         <Grid Grid.Row="3" Grid.Column="0" Style="{StaticResource SmallGrid}">
             <Grid.ColumnDefinitions>
@@ -130,15 +126,15 @@
             </Grid.RowDefinitions>
 
 
-            <TextBlock Style="{StaticResource Label}"
-                       Text="Feature extractor:"
-                       Grid.Column="0" Grid.Row="0"/>
-
-            <ComboBox
-                Margin="0 0 20 0"
-                Grid.Column="0" Grid.Row="1"
-                ItemsSource="{Binding FeatureExtractors}"
-                SelectedItem="{Binding FeatureExtractor}"></ComboBox>
+             <TextBlock Style="{StaticResource Label}" 
+                        Text="Feature extractor:" 
+                        Grid.Column="0" Grid.Row="0"/> 
+             
+             <ComboBox 
+                 Margin="0 0 20 0" 
+                 Grid.Column="0" Grid.Row="1" 
+                 ItemsSource="{Binding FeatureExtractors}" 
+                 SelectedItem="{Binding FeatureExtractor}"></ComboBox> 
 
 
             <TextBlock Grid.Column="1" Grid.Row="0"
@@ -181,36 +177,43 @@
                 ItemsSource="{Binding Metrics}"
                 SelectedItem="{Binding Metric}"></ComboBox>
         </Grid>
-        <Grid Grid.Row="5" Grid.Column="0" Style="{StaticResource SmallGrid}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
+         <Grid Grid.Row="5" Grid.Column="0" Style="{StaticResource SmallGrid}"> 
+             <Grid.ColumnDefinitions> 
+                 <ColumnDefinition Width="*"></ColumnDefinition> 
+                 <ColumnDefinition Width="*"></ColumnDefinition> 
+             </Grid.ColumnDefinitions> 
+         
+             <Grid.RowDefinitions> 
+                 <RowDefinition Height="*"></RowDefinition> 
+                 <RowDefinition Height="*"></RowDefinition> 
+             </Grid.RowDefinitions> 
+         
+             <!--<TextBlock Grid.Row="0" Grid.Column="0" 
+                        Style="{StaticResource Label}" 
+                        Text="Keyword extractor:" /> 
+         
+             <ComboBox Grid.Row="1" Grid.Column="0" 
+                       Margin="0 0 20 0" 
+                       ItemsSource="{Binding KeywordExtractors}" 
+                       SelectedItem="{Binding KeywordExtractor}"></ComboBox>-->
+             <StackPanel
+                 Grid.Row="0"
+                 Grid.Column="0"
+                 Grid.RowSpan="2"
+                 Style="{StaticResource CustomStackPanel}">
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-            </Grid.RowDefinitions>
-
-            <TextBlock Grid.Row="0" Grid.Column="0"
-                       Style="{StaticResource Label}"
-                       Text="Keyword extractor:" />
-
-            <ComboBox Grid.Row="1" Grid.Column="0"
-                      Margin="0 0 20 0"
-                      ItemsSource="{Binding KeywordExtractors}"
-                      SelectedItem="{Binding KeywordExtractor}"></ComboBox>
-        </Grid>
-        <StackPanel
-            Grid.Row="6"
-            Grid.Column="0"
-            Style="{StaticResource CustomStackPanel}">
-
-            <TextBlock Style="{StaticResource Label}"
-                       Text="Use custom dataset:" />
-            <CheckBox 
+                 <TextBlock Style="{StaticResource Label}"
+                            Text="Use custom dataset:" />
+                 <CheckBox 
                      IsChecked="{Binding IsCustomDataSet, UpdateSourceTrigger=PropertyChanged}" />
-        </StackPanel>
+             </StackPanel>
+
+             <TextBlock Grid.Row="0" Grid.Column="1"
+                 Style="{StaticResource Label}"
+                 Text="Keywords filepath:" />
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding KeywordsFilePath, UpdateSourceTrigger=PropertyChanged}"/>
+        </Grid> 
+
         <Button Grid.Row="0" 
                 Grid.Column="1" 
                 Grid.ColumnSpan="2" 

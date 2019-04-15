@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AttributeExtractor.Extracting
+namespace KeywordExtractor.Extracting
 {
     public class TokenCountCalculator : ITokenValueCalculator
     {

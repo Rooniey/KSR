@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using DataSetParser.Model;
+using Common.Model;
 using Statistics.model;
 
 namespace Statistics
