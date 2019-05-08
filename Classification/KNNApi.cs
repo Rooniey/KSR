@@ -15,13 +15,13 @@ namespace Classification
             NormalizeVectors(trainingSet, testSet);
 
             var centroids = trainingSet
-                .Select(ta => new Centroid(ta.FeatureVector.Select(f => f.Value).ToArray(), ta.Label)).ToArray();
+                .Select(ta => new Centroid(ta.FeatureVector.OrderBy(p => p.Key).Select(f => f.Value).ToArray(), ta.Label)).ToArray();
 
             KNNAlgorithm algorithm = new KNNAlgorithm(metric, centroids, K);
 
             foreach (var vectorizedTestArticle in testSet)
             {
-                var x = algorithm.ProcessInput(vectorizedTestArticle.FeatureVector.Select(f => f.Value).ToArray());
+                var x = algorithm.ProcessInput(vectorizedTestArticle.FeatureVector.OrderBy(p => p.Key).Select(f => f.Value).ToArray());
                 vectorizedTestArticle.Prediction = x;
             }
         }

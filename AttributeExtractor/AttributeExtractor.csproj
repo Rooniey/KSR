@@ -56,14 +56,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extracting\KeywordBinaryFeatureExtractor.cs" />
+    <Compile Include="Extracting\AverageSentenceLengthFeatureExtractor.cs" />
+    <Compile Include="Extracting\AverageWordLengthFeatureExtractor.cs" />
     <Compile Include="Extracting\IFeatureExtractor.cs" />
+    <Compile Include="Extracting\BeginningKeywordCountExtractor.cs" />
+    <Compile Include="Extracting\ProperNameCountFeatureExtractor.cs" />
     <Compile Include="Extracting\KeywordCountFeatureExtractor.cs" />
-    <Compile Include="Extracting\FeatureExtractorProvider.cs" />
-    <Compile Include="Extracting\KeywordDistanceFromStartFeatureExtractor.cs" />
-    <Compile Include="Extracting\KeywordFrequencyAndDistanceFeatureExtractor.cs" />
+    <Compile Include="Extracting\LastKeywordDistanceFromEndFeatureExtractor.cs" />
+    <Compile Include="Extracting\FirstKeywordDistanceFromStartFeatureExtractor.cs" />
     <Compile Include="Extracting\KeywordFrequencyExtractor.cs" />
-    <Compile Include="Extracting\KeywordMultiDistanceFromStartFeatureVector.cs" />
+    <Compile Include="Extracting\WordCountFeatureExtractor.cs" />
     <Compile Include="Processing\ITokenProcessor.cs" />
     <Compile Include="Processing\Lemmatizer.cs" />
     <Compile Include="Processing\Stemmer.cs" />
@@ -71,6 +73,12 @@
     <Compile Include="Processing\WordComparatorProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Processing\Tokenizer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{B863EAFB-FB3A-48D3-A087-F3A92DAAE394}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -10,6 +10,7 @@ using Classification;
 using Classification.distance;
 using DataSetParser;
 using Presentation.Base;
+using Presentation.Model;
 using Statistics;
 using Statistics.model;
 
@@ -69,7 +70,7 @@ namespace Presentation.ViewModels
 
         public List<string> Labels => _labels;
 
-        private int _keywordsCount;
+        private int _keywordsCount = 40;
 
         public int KeywordsCount
         {
@@ -102,17 +103,19 @@ namespace Presentation.ViewModels
             set => SetProperty(ref _metric, value);
         }
 
-        private readonly List<string> _featureExtractors = FeatureExtractorProvider.AVAILABLE_FEATURE_EXTRACTORS;
-
-        public List<string> FeatureExtractors => _featureExtractors;
-
-        private string _featureExtractor = FeatureExtractorProvider.AVAILABLE_FEATURE_EXTRACTORS[0];
-
-        public string FeatureExtractor
+        public List<SelectableFeatureExtractor> FeatureExtractors { get; } = new List<SelectableFeatureExtractor>()
         {
-            get => _featureExtractor;
-            set => SetProperty(ref _featureExtractor, value);
-        }
+            new SelectableFeatureExtractor(new AverageWordLengthFeatureExtractor()),
+            new SelectableFeatureExtractor(new BeginningKeywordCountFeatureExtractor()),
+            new SelectableFeatureExtractor(new FirstKeywordDistanceFromStartFeatureExtractor()),
+            new SelectableFeatureExtractor(new KeywordCountFeatureExtractor()),
+            new SelectableFeatureExtractor(new KeywordFrequencyExtractor()),
+            new SelectableFeatureExtractor(new LastKeywordDistanceFromEndFeatureExtractor()),
+            new SelectableFeatureExtractor(new WordCountFeatureExtractor()),
+            new SelectableFeatureExtractor(new AverageSentenceLengthFeatureExtractor()),
+            new SelectableFeatureExtractor(new ProperNameCountFeatureExtractor()),
+        };
+
 
         private double _trainingSetFraction = 0.6;
 
@@ -162,6 +165,7 @@ namespace Presentation.ViewModels
             set => SetProperty(ref _coldStartSize, value);
         }
 
+
         public AsyncCommand StartCommand { get; }
 
         public MainViewModel()
@@ -199,12 +203,18 @@ namespace Presentation.ViewModels
 
                     Console.WriteLine("Reading keywords...");
                     var keywords = KeywordsAccessObject.ReadKeywords(KeywordsFilePath).Take(KeywordsCount);
-                    IFeatureExtractor featureExtractor = FeatureExtractorProvider.GetFeatureExtractorExtractor(FeatureExtractor);
 
                     CurrentStep = "Extracting features";
                     foreach (var article in allArticles)
                     {
-                        article.FeatureVector = featureExtractor.ExtractFeatures(article.Tokens, keywords);
+                        foreach (var selectableFeature in FeatureExtractors.Where(fe => fe.IsSelected))
+                        {
+                            var features = selectableFeature.FeatureExtractor.ExtractFeatures(article, keywords);
+                            foreach (KeyValuePair<string, double> feature in features)
+                            {
+                               article.FeatureVector.Add(feature.Key, feature.Value); 
+                            }
+                        }
                     }
 
                     List <PerformanceMeasures> Performances = new List<PerformanceMeasures>();

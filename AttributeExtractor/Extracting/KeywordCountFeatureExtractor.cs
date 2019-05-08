@@ -1,19 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Common.Model;
 
 namespace AttributeExtractor.Extracting
 {
     public class KeywordCountFeatureExtractor : IFeatureExtractor
-    {
-        public Dictionary<string, double> ExtractFeatures(List<string> article, IEnumerable<string> keywords)
+    {   
+        public Dictionary<string, double> ExtractFeatures(Article article, IEnumerable<string> keywords)
         {
-            Dictionary<string, double> dictionary = new Dictionary<string, double>();
-            foreach (var kw in keywords)
+            return new Dictionary<string, double>()
             {
-                dictionary[kw] = article.Count(t => t == kw);
-            }
-
-            return dictionary;
+                {"count",  article.Tokens.Count(keywords.Contains) }
+            };
         }
     }
 }

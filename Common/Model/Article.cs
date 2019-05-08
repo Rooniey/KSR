@@ -12,7 +12,7 @@ namespace Common.Model
 
         public string Prediction { get; set; }
 
-        public Dictionary<string, double> FeatureVector { get; set; }
+        public Dictionary<string, double> FeatureVector { get; set; } = new Dictionary<string, double>();
 
         public Article(string body, string label)
         {

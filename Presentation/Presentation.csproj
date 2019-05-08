@@ -65,6 +65,7 @@
     <Compile Include="Base\BooleanToVisibilityConverter.cs" />
     <Compile Include="Base\IErrorHandler.cs" />
     <Compile Include="Base\TaskUtility.cs" />
+    <Compile Include="Model\SelectableFeatureExtractor.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
