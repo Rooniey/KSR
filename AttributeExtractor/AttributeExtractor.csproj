@@ -65,6 +65,7 @@
     <Compile Include="Extracting\LastKeywordDistanceFromEndFeatureExtractor.cs" />
     <Compile Include="Extracting\FirstKeywordDistanceFromStartFeatureExtractor.cs" />
     <Compile Include="Extracting\KeywordFrequencyExtractor.cs" />
+    <Compile Include="Extracting\UniqueWordsRatioFeatureExtractor.cs" />
     <Compile Include="Extracting\WordCountFeatureExtractor.cs" />
     <Compile Include="Processing\ITokenProcessor.cs" />
     <Compile Include="Processing\Lemmatizer.cs" />

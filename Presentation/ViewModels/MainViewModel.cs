@@ -114,6 +114,7 @@ namespace Presentation.ViewModels
             new SelectableFeatureExtractor(new WordCountFeatureExtractor()),
             new SelectableFeatureExtractor(new AverageSentenceLengthFeatureExtractor()),
             new SelectableFeatureExtractor(new ProperNameCountFeatureExtractor()),
+            new SelectableFeatureExtractor(new UniqueWordsRatioFeatureExtractor())
         };
 
 
