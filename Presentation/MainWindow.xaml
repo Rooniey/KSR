@@ -252,14 +252,36 @@
             </ItemsControl>
         </StackPanel>
 
-        <Button Grid.Row="0" 
-                Grid.Column="1" 
-                Grid.ColumnSpan="2" 
-                Command="{Binding StartCommand}" 
-                Content="Predict" 
-                Width="200" 
+        <StackPanel Grid.Row="0"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="2"
+                    Orientation="Horizontal">
+
+            <Button 
+                Command="{Binding GeneratePreprocessedDataSet}" 
+                Content="Generate data set" 
                 HorizontalAlignment="Right" 
                 Margin="10 0"/>
+
+            <Button 
+                Command="{Binding ReadDataSet}" 
+                Content="Read data set" 
+                HorizontalAlignment="Right" 
+                Margin="10 0"/>
+            <Button 
+                Command="{Binding SaveDataSet}" 
+                Content="Save data set" 
+                HorizontalAlignment="Right" 
+                Margin="10 0"/>
+
+            <Button 
+                    Command="{Binding StartCommand}" 
+                    Content="Predict" 
+                    HorizontalAlignment="Right" 
+                    Margin="10 0"/>
+        </StackPanel>
+
+        
         <StackPanel Grid.Column="1" 
                     Grid.Row="1" 
                     Grid.RowSpan="3" 

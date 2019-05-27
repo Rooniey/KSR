@@ -94,7 +94,7 @@ namespace KeywordExtractor.Extracting
         {
             var mostFrequentWords = GetMostFrequentTerms(tokenizedArticles);
 
-            var postProcessor = new StopWordsFilterProcessor(mostFrequentWords);
+            var postProcessor = new StopWordsFilterProcessor(mostFrequentWords.ToHashSet());
 
             foreach (var tokenizedArticle in tokenizedArticles)
             {

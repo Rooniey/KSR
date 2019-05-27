@@ -19,5 +19,11 @@ namespace Common.Model
             Body = body;
             Label = label;
         }
+
+        public Article(PureArticle ar)
+        {
+            Body = ar.Body;
+            Label = ar.Label;
+        }
     }
 }

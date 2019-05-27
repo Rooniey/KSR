@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using AttributeExtractor.Extracting;
 using AttributeExtractor.Processing;
 using Classification;
 using Classification.distance;
+using Common.Model;
 using DataSetParser;
+using Microsoft.Win32;
 using Presentation.Base;
 using Presentation.Model;
 using Statistics;
@@ -41,7 +46,7 @@ namespace Presentation.ViewModels
 
         public string KeywordsFilePath
         {
-            get { return _keywordsFilePath; }
+            get => _keywordsFilePath;
             set => SetProperty(ref _keywordsFilePath, value);
         }
 
@@ -74,7 +79,7 @@ namespace Presentation.ViewModels
 
         public int KeywordsCount
         {
-            get { return _keywordsCount; }
+            get => _keywordsCount;
             set => SetProperty(ref _keywordsCount, value);
         }
 
@@ -166,21 +171,112 @@ namespace Presentation.ViewModels
             set => SetProperty(ref _coldStartSize, value);
         }
 
+        private List<Article> allArticles;
+        private List<Article> trainingSet;
+        private List<Article> testSet;
+        private List<Article> coldStart;
+        private List<string> labelCollection;
+
 
         public AsyncCommand StartCommand { get; }
+        public AsyncCommand GeneratePreprocessedDataSet { get; }
+        public AsyncCommand SaveDataSet { get; }
+        public AsyncCommand ReadDataSet { get; }
 
         public MainViewModel()
         {
+            GeneratePreprocessedDataSet = new AsyncCommand(async () => {
+                await Task.Run(() => 
+                {
+                    var (all, labels) = DataSetReader.GetArticles(DataSetDirectory, SelectedLabel);
+                    labelCollection = labels;
+                    allArticles = all.OrderBy(e => Guid.NewGuid()).ToList();
+                    var (training, test) = Utility.DivideDataSet(allArticles, TrainingSetFraction);
+                    trainingSet = training;
+                    testSet = test;
+                    coldStart = trainingSet.Take(ColdStartSize).ToList();
+                }
+            );});
 
-            
+            SaveDataSet = new AsyncCommand(async () =>
+            {
+                await Task.Run(() =>
+                {
+                    FileStream fs = new FileStream("../../../Data/serialized/file.dat", FileMode.Create);
+
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    try
+                    {
+                        var cold = coldStart.Select(ar => new PureArticle(ar)).ToList();
+                        var training = trainingSet.Select(ar => new PureArticle(ar)).ToList();
+                        var test = testSet.Select(ar => new PureArticle(ar)).ToList();
+                        formatter.Serialize(fs, new PreparedDataSet(training, test, cold, labelCollection));
+                    }
+                    catch (SerializationException e)
+                    {
+                        Console.WriteLine("Failed to serialize. Reason: " + e.Message);
+                        throw;
+                    }
+                    finally
+                    {
+                        fs.Close();
+                    }
+                });
+            });
+
+            ReadDataSet = new AsyncCommand(async () =>
+            {
+                await Task.Run(() =>
+                {
+                    OpenFileDialog openFileDialog1 = new OpenFileDialog
+                    {
+                        Title = "Choose to serialize",
+                        DefaultExt = "dat",
+                        Filter = "dat files (*.dat)|*.dat",
+                        FilterIndex = 2,
+                    };
+
+                    if (openFileDialog1.ShowDialog() == true)
+                    {
+                        
+                        FileStream fs = new FileStream(openFileDialog1.FileName, FileMode.Open);
+                        try
+                        {
+                            BinaryFormatter formatter = new BinaryFormatter();
+                            var preparedDataSet = (PreparedDataSet)formatter.Deserialize(fs);
+                            coldStart = preparedDataSet.ColdStart.Select(ar => new Article(ar)).ToList();
+                            trainingSet = preparedDataSet.TrainingSet.Select(ar => new Article(ar))
+                                .Where(t => !coldStart.Exists(ar => ar.Body == t.Body)).Concat(coldStart).ToList();
+                            testSet = preparedDataSet.TestSet.Select(ar => new Article(ar)).ToList();
+                            labelCollection = preparedDataSet.LabelCollection;
+                            allArticles = new List<Article>().Concat(trainingSet).Concat(testSet).ToList();
+                        }
+                        catch (SerializationException e)
+                        {
+                            Console.WriteLine("Failed to deserialize. Reason: " + e.Message);
+                            throw;
+                        }
+                        finally
+                        {
+                            fs.Close();
+                        }
+                    }
+                });
+            });
+
             StartCommand = new AsyncCommand((async () =>
             {
                 await Task.Run(() =>
                 {
                     IsLoading = true;
                     CurrentStep = "Initializing";
-                    var (allArticles, labels) = DataSetReader.GetArticles(DataSetDirectory, SelectedLabel);
-                    var labelsCollection = Enumerable.Range(0, labels.Count).ToDictionary(i => labels[i], i => i);
+
+                    foreach (var article in allArticles)
+                    {
+                        article.FeatureVector = new Dictionary<string, double>();
+                    }
+
+                    var labelList = Enumerable.Range(0, labelCollection.Count).ToDictionary(i => labelCollection[i], i => i);
 
                     foreach (var article in allArticles)
                     {
@@ -206,9 +302,10 @@ namespace Presentation.ViewModels
                     var keywords = KeywordsAccessObject.ReadKeywords(KeywordsFilePath).Take(KeywordsCount);
 
                     CurrentStep = "Extracting features";
+                    var extractors = FeatureExtractors.Where(fe => fe.IsSelected).ToList();
                     foreach (var article in allArticles)
                     {
-                        foreach (var selectableFeature in FeatureExtractors.Where(fe => fe.IsSelected))
+                        foreach (var selectableFeature in extractors)
                         {
                             var features = selectableFeature.FeatureExtractor.ExtractFeatures(article, keywords);
                             foreach (KeyValuePair<string, double> feature in features)
@@ -218,42 +315,14 @@ namespace Presentation.ViewModels
                         }
                     }
 
-                    List <PerformanceMeasures> Performances = new List<PerformanceMeasures>();
-                    int allTries = 5;
-                    for (int i = 0; i < allTries; i++)
-                    {
+                    CurrentStep = $"Predicting";
+                    KNNApi.UseKNN(coldStart, MetricProvider.GetMetric(Metric), K, testSet);
+                    CurrentStep = $"Calculating statistics";
+                   
+                    PerformanceMeasures = PerformanceCalculator.CalculatePerformanceMeasures(testSet, labelList); 
 
-                        allArticles = allArticles.OrderBy(e => Guid.NewGuid()).ToList();
+                    ShowDataGrid(labelList);
 
-                        var (trainingSet, testSet) = Utility.DivideDataSet(allArticles, TrainingSetFraction);
-
-
-                        CurrentStep = $"Predicting - {i}/{allTries}";
-                        KNNApi.UseKNN(trainingSet.Take(ColdStartSize).ToList(), MetricProvider.GetMetric(Metric), K, testSet);
-
-                        CurrentStep = $"Calculating statistics - {i}/{allTries}";
-//                        PerformanceMeasures = PerformanceCalculator.CalculatePerformanceMeasures(testSet, labelsCollection);
-
-                        Performances.Add(PerformanceCalculator.CalculatePerformanceMeasures(testSet, labelsCollection));
-
-                    }
-
-                    var measures = Performances.Aggregate((sum, next) =>
-                    {
-                        sum.AverageAccuracy += next.AverageAccuracy;
-                        sum.Precision += next.Precision;
-                        sum.Recall += next.Recall;
-                        sum.Specificity += next.Specificity;
-                        return sum;
-                    });
-                    measures.AverageAccuracy /= Performances.Count;
-                    measures.Precision /= Performances.Count;
-                    measures.Recall/= Performances.Count;
-                    measures.Specificity /= Performances.Count;
-
-                    PerformanceMeasures = measures;
-
-                    ShowDataGrid(labelsCollection);
                     CurrentStep = "";
                     IsLoading = false;
                 });

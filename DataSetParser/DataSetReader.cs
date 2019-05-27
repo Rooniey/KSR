@@ -21,7 +21,7 @@ namespace DataSetParser
                  .Select(g => g.Key)
                  .ToList();
 
-             List<Article> articlesSelected = allArticles.Where(a => labelCollection.Contains(a.Label))
+            List<Article> articlesSelected = allArticles.Where(a => labelCollection.Contains(a.Label))
                  .ToList();
 
              return (articlesSelected, labelCollection);
